@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  reverse-proxy:
+    image: traefik:v2.5.3
+    restart: always
+    ports:
+      - '80:80'
+      - '8080:8080'
+    networks:
+      - web-services
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config:/etc/traefik/
+
+  mongo-db:
+    image: mongo:5.0.3-focal
+    container_name: mongo-example
+    restart: always
+    volumes:
+      - mongo-example:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongoAdmin
+      MONGO_INITDB_ROOT_PASSWORD: mongoPassword
+    networks:
+      - backend-db
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: mongoAdmin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: mongoPassword
+      ME_CONFIG_MONGODB_SERVER: mongo-example
+    depends_on:
+      - mongo-db
+    networks:
+      - backend-db
+
+volumes:
+  mongo-example:
+
+networks:
+  web-services:
+    external: true
+  backend-db:
+    external: true
