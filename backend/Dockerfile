@@ -10,6 +10,6 @@ RUN yarn install --production && yarn cache clean --force
 
 COPY . .
 
-EXPOSE 80
+EXPOSE 3000
 
 CMD [ "node", "./bin/www" ]
